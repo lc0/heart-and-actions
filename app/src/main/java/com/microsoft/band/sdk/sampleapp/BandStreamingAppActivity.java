@@ -46,6 +46,7 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import org.java_websocket.client.WebSocketClient;
@@ -60,7 +61,11 @@ public class BandStreamingAppActivity extends Activity {
 
 	private BandClient client = null;
 	private Button btnStart;
+    private Button btSendLabel;
+
 	private TextView txtStatus;
+    private EditText edtLabel;
+
     WebSocketClient mWebSocketClient;
 	
     @Override
@@ -77,6 +82,16 @@ public class BandStreamingAppActivity extends Activity {
 				new appTask().execute();
 			}
 		});
+
+
+        edtLabel = (EditText) findViewById(R.id.edtLabel);
+        btSendLabel = (Button) findViewById(R.id.btnSendLabel);
+        btSendLabel.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("Sending feedback: ", edtLabel.getText().toString());
+            }
+        });
 
         connectWebSocket();
     }

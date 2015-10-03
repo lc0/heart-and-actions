@@ -11,4 +11,5 @@
         3. Press the Start button\n
         4. Data from the acceleromter sensor should be displayed.</string>
     <string name="start">Start</string>
+    <string name="record">Start recording</string>
 </resources>
