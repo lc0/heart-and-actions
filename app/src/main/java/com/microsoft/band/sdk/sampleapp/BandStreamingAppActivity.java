@@ -99,7 +99,7 @@ public class BandStreamingAppActivity extends Activity {
 			try {
 				if (getConnectedBandClient()) {
 					appendToUI("Band is connected.\n");
-//					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, SampleRate.MS128);
+					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, SampleRate.MS128);
 					client.getSensorManager().registerHeartRateEventListener(mHeartRateEventListener);
 				} else {
 					appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
@@ -139,6 +139,7 @@ public class BandStreamingAppActivity extends Activity {
         @Override
         public void onBandAccelerometerChanged(final BandAccelerometerEvent event) {
             if (event != null) {
+                sendMessage(JsonUtil.toJson("acceleration", event));
                 appendToUI(String.format(" X = %.3f \n Y = %.3f\n Z = %.3f", event.getAccelerationX(),
                         event.getAccelerationY(), event.getAccelerationZ()));
             }
