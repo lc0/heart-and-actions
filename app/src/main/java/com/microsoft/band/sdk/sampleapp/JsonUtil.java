@@ -3,6 +3,7 @@ package com.microsoft.band.sdk.sampleapp;
 import com.microsoft.band.sensors.BandAccelerometerEvent;
 import com.microsoft.band.sensors.BandGyroscopeEvent;
 import com.microsoft.band.sensors.BandHeartRateEvent;
+import com.microsoft.band.sensors.BandPedometerEvent;
 import com.microsoft.band.sensors.BandSkinTemperatureEvent;
 
 import org.json.JSONException;
@@ -38,6 +39,22 @@ public class JsonUtil {
         JSONObject jsonHeartRateObj = new JSONObject();
         try {
             jsonHeartRateObj.put("temperature", Float.toString(event.getTemperature()));
+
+            jsonObj.put(name, jsonHeartRateObj);
+            jsonObj.put("timestamp", getCurrentTimestamp());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return jsonObj.toString();
+    }
+    static String toJson(String name, BandPedometerEvent event) {
+
+        JSONObject jsonObj = new JSONObject();
+        JSONObject jsonHeartRateObj = new JSONObject();
+        try {
+            jsonHeartRateObj.put("steps", Float.toString(event.getTotalSteps()));
 
             jsonObj.put(name, jsonHeartRateObj);
             jsonObj.put("timestamp", getCurrentTimestamp());

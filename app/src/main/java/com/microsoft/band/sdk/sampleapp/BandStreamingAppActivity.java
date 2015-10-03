@@ -31,6 +31,8 @@ import com.microsoft.band.sensors.BandGyroscopeEvent;
 import com.microsoft.band.sensors.BandGyroscopeEventListener;
 import com.microsoft.band.sensors.BandHeartRateEvent;
 import com.microsoft.band.sensors.BandHeartRateEventListener;
+import com.microsoft.band.sensors.BandPedometerEvent;
+import com.microsoft.band.sensors.BandPedometerEventListener;
 import com.microsoft.band.sensors.BandSkinTemperatureEvent;
 import com.microsoft.band.sensors.BandSkinTemperatureEventListener;
 import com.microsoft.band.sensors.HeartRateConsentListener;
@@ -103,10 +105,14 @@ public class BandStreamingAppActivity extends Activity {
 			try {
 				if (getConnectedBandClient()) {
 					appendToUI("Band is connected.\n");
-					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, SampleRate.MS128);
+
+                    SampleRate frequency =  SampleRate.MS128;
+
+					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, frequency);
 					client.getSensorManager().registerHeartRateEventListener(mHeartRateEventListener);
                     client.getSensorManager().registerSkinTemperatureEventListener(mSkinTemperatureEventListener);
-                    client.getSensorManager().registerGyroscopeEventListener(mGyroscopeEventListener, SampleRate.MS128);
+                    client.getSensorManager().registerGyroscopeEventListener(mGyroscopeEventListener, frequency);
+                    client.getSensorManager().registerPedometerEventListener(mPedometerEventListener);
 				} else {
 					appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
 				}
@@ -136,7 +142,7 @@ public class BandStreamingAppActivity extends Activity {
 		this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-            	txtStatus.setText(string);
+                txtStatus.setText(string);
             }
         });
 	}
@@ -170,6 +176,16 @@ public class BandStreamingAppActivity extends Activity {
         public void onBandSkinTemperatureChanged(BandSkinTemperatureEvent event) {
             if (event != null) {
                 sendMessage(JsonUtil.toJson("skip-temperature", event));
+            }
+        }
+    };
+
+    private BandPedometerEventListener mPedometerEventListener = new BandPedometerEventListener() {
+
+        @Override
+        public void onBandPedometerChanged(BandPedometerEvent event) {
+            if (event != null) {
+                sendMessage(JsonUtil.toJson("pedometer", event));
             }
         }
     };
