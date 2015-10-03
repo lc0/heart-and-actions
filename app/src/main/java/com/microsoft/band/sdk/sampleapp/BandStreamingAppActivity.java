@@ -103,10 +103,10 @@ public class BandStreamingAppActivity extends Activity {
 			try {
 				if (getConnectedBandClient()) {
 					appendToUI("Band is connected.\n");
-					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, SampleRate.MS128);
+//					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, SampleRate.MS128);
 					client.getSensorManager().registerHeartRateEventListener(mHeartRateEventListener);
-                    client.getSensorManager().registerSkinTemperatureEventListener(mSkinTemperatureEventListener);
-                    client.getSensorManager().registerGyroscopeEventListener(mGyroscopeEventListener, SampleRate.MS128);
+//                    client.getSensorManager().registerSkinTemperatureEventListener(mSkinTemperatureEventListener);
+//                    client.getSensorManager().registerGyroscopeEventListener(mGyroscopeEventListener, SampleRate.MS128);
 				} else {
 					appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
 				}

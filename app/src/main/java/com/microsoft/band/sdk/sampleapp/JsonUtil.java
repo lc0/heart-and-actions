@@ -12,6 +12,9 @@ import org.json.JSONObject;
  * Created by khomenkos on 03/10/15.
  */
 public class JsonUtil {
+    static String getCurrentTimestamp() {
+        return Long.toString(System.currentTimeMillis()/1000);
+    }
     static String toJson(String name, BandHeartRateEvent event) {
 
         JSONObject jsonObj = new JSONObject();
@@ -21,6 +24,7 @@ public class JsonUtil {
             jsonHeartRateObj.put("quality", event.getQuality().toString());
 
             jsonObj.put(name, jsonHeartRateObj);
+            jsonObj.put("timestamp", getCurrentTimestamp());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -36,6 +40,7 @@ public class JsonUtil {
             jsonHeartRateObj.put("temperature", Float.toString(event.getTemperature()));
 
             jsonObj.put(name, jsonHeartRateObj);
+            jsonObj.put("timestamp", getCurrentTimestamp());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -53,6 +58,7 @@ public class JsonUtil {
             jsonHeartRateObj.put("az", Float.toString(event.getAccelerationZ()));
 
             jsonObj.put(name, jsonHeartRateObj);
+            jsonObj.put("timestamp", getCurrentTimestamp());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -75,6 +81,8 @@ public class JsonUtil {
             jsonHeartRateObj.put("vz", Float.toString(event.getAngularVelocityZ()));
 
             jsonObj.put(name, jsonHeartRateObj);
+            jsonObj.put("timestamp", getCurrentTimestamp());
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
