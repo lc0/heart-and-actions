@@ -23,12 +23,17 @@ import com.microsoft.band.BandException;
 import com.microsoft.band.BandInfo;
 import com.microsoft.band.BandIOException;
 import com.microsoft.band.ConnectionState;
+import com.microsoft.band.UserConsent;
 import com.microsoft.band.sdk.sampleapp.streaming.R;
 import com.microsoft.band.sensors.BandAccelerometerEvent;
 import com.microsoft.band.sensors.BandAccelerometerEventListener;
+import com.microsoft.band.sensors.BandHeartRateEvent;
+import com.microsoft.band.sensors.BandHeartRateEventListener;
+import com.microsoft.band.sensors.HeartRateConsentListener;
 import com.microsoft.band.sensors.SampleRate;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -82,7 +87,8 @@ public class BandStreamingAppActivity extends Activity {
 			try {
 				if (getConnectedBandClient()) {
 					appendToUI("Band is connected.\n");
-					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, SampleRate.MS128);
+//					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, SampleRate.MS128);
+					client.getSensorManager().registerHeartRateEventListener(mHeartRateEventListener);
 				} else {
 					appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
 				}
@@ -126,6 +132,17 @@ public class BandStreamingAppActivity extends Activity {
             }
         }
     };
+
+	private BandHeartRateEventListener mHeartRateEventListener = new BandHeartRateEventListener() {
+
+		@Override
+		public void onBandHeartRateChanged(BandHeartRateEvent event) {
+			if (event != null) {
+				appendToUI(String.format(" Heart rate = %d", event.getHeartRate()));
+			}
+
+		}
+	};
     
 	private boolean getConnectedBandClient() throws InterruptedException, BandException {
 		if (client == null) {
@@ -136,11 +153,25 @@ public class BandStreamingAppActivity extends Activity {
 			}
 			client = BandClientManager.getInstance().create(getBaseContext(), devices[0]);
 		} else if (ConnectionState.CONNECTED == client.getConnectionState()) {
+
+            if(client.getSensorManager().getCurrentHeartRateConsent() == UserConsent.GRANTED) {
+                Log.d("connecting", "everything is good");
+            } else {
+                client.getSensorManager().requestHeartRateConsent(BandStreamingAppActivity.this, heartRateConsentListener);
+            }
+
 			return true;
 		}
 		
 		appendToUI("Band is connecting...\n");
 		return ConnectionState.CONNECTED == client.connect().await();
 	}
+
+    private HeartRateConsentListener heartRateConsentListener = new HeartRateConsentListener() {
+        @Override
+        public void userAccepted(boolean b) {
+            Log.d("connecting", "everything is good we have it now");
+        }
+    };
 }
 
