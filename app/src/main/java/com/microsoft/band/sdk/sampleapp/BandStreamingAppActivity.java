@@ -32,6 +32,7 @@ import com.microsoft.band.sensors.BandHeartRateEventListener;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 import com.microsoft.band.sensors.SampleRate;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -41,11 +42,18 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class BandStreamingAppActivity extends Activity {
 
 	private BandClient client = null;
 	private Button btnStart;
 	private TextView txtStatus;
+    WebSocketClient mWebSocketClient;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +69,8 @@ public class BandStreamingAppActivity extends Activity {
 				new appTask().execute();
 			}
 		});
+
+        connectWebSocket();
     }
 	
 	@Override
@@ -115,6 +125,8 @@ public class BandStreamingAppActivity extends Activity {
 	}
 	
 	private void appendToUI(final String string) {
+        Log.d("sending", string);
+        sendMessage(string);
 		this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -173,5 +185,49 @@ public class BandStreamingAppActivity extends Activity {
             Log.d("connecting", "everything is good we have it now");
         }
     };
+
+    private void connectWebSocket() {
+        URI uri;
+        try {
+            uri = new URI("ws://teststream.mybluemix.net/ws/receive");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        this.mWebSocketClient = new WebSocketClient(uri) {
+            @Override
+            public void onOpen(ServerHandshake serverHandshake) {
+                Log.i("Websocket", "Opened");
+                mWebSocketClient.send("Hello from " + Build.MANUFACTURER + " " + Build.MODEL);
+            }
+
+            @Override
+            public void onMessage(String s) {
+                final String message = s;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("message is coming", message);
+                    }
+                });
+            }
+
+            @Override
+            public void onClose(int i, String s, boolean b) {
+                Log.i("Websocket", "Closed " + s);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.i("Websocket", "Error " + e.getMessage());
+            }
+        };
+        mWebSocketClient.connect();
+    }
+
+    public void sendMessage(String message) {
+        mWebSocketClient.send(message);
+    }
 }
 
