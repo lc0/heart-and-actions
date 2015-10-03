@@ -44,6 +44,8 @@ import android.widget.TextView;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -125,8 +127,6 @@ public class BandStreamingAppActivity extends Activity {
 	}
 	
 	private void appendToUI(final String string) {
-        Log.d("sending", string);
-        sendMessage(string);
 		this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -139,8 +139,8 @@ public class BandStreamingAppActivity extends Activity {
         @Override
         public void onBandAccelerometerChanged(final BandAccelerometerEvent event) {
             if (event != null) {
-            	appendToUI(String.format(" X = %.3f \n Y = %.3f\n Z = %.3f", event.getAccelerationX(),
-            			event.getAccelerationY(), event.getAccelerationZ()));
+                appendToUI(String.format(" X = %.3f \n Y = %.3f\n Z = %.3f", event.getAccelerationX(),
+                        event.getAccelerationY(), event.getAccelerationZ()));
             }
         }
     };
@@ -150,7 +150,8 @@ public class BandStreamingAppActivity extends Activity {
 		@Override
 		public void onBandHeartRateChanged(BandHeartRateEvent event) {
 			if (event != null) {
-				appendToUI(String.format(" Heart rate = %d", event.getHeartRate()));
+                sendMessage(JsonUtil.toJson("heartrate", event));
+                appendToUI(String.format(" Heart rate = %d", event.getHeartRate()));
 			}
 
 		}
