@@ -56,12 +56,15 @@ import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
 public class BandStreamingAppActivity extends Activity {
 
 	private BandClient client = null;
 	private Button btnStart;
     private Button btSendLabel;
+
+    private boolean started = false;
 
 	private TextView txtStatus;
     private EditText edtLabel;
@@ -89,7 +92,23 @@ public class BandStreamingAppActivity extends Activity {
         btSendLabel.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("Sending feedback: ", edtLabel.getText().toString());
+
+
+                String action = "start";
+                if (started) {
+                    action = "stop";
+                }
+                started = !started;
+
+                Log.d("Sending feedback: ", edtLabel.getText().toString() + " -- " + action);
+
+                HashMap<String, String> data = new HashMap<String, String>();
+                data.put("action", action);
+                data.put("label", edtLabel.getText().toString());
+                data.put("timestamp", edtLabel.getText().toString());
+                AsyncLabelPost asyncHttpPost = new AsyncLabelPost(data);
+                asyncHttpPost.execute("http://teststream.mybluemix.net/label");
+
             }
         });
 
