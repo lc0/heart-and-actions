@@ -64,6 +64,8 @@ public class BandStreamingAppActivity extends Activity {
 	private Button btnStart;
     private Button btSendLabel;
 
+    private String label = "";
+
     private boolean started = false;
 
 	private TextView txtStatus;
@@ -95,7 +97,9 @@ public class BandStreamingAppActivity extends Activity {
 
 
                 String action = "start";
+                setLabel(edtLabel.getText().toString());
                 if (started) {
+                    setLabel("");
                     action = "stop";
                 }
                 started = !started;
@@ -132,15 +136,23 @@ public class BandStreamingAppActivity extends Activity {
 			}
 		}
 	}
-	
-	private class appTask extends AsyncTask<Void, Void, Void> {
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    private class appTask extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected Void doInBackground(Void... params) {
 			try {
 				if (getConnectedBandClient()) {
 					appendToUI("Band is connected.\n");
 
-                    SampleRate frequency =  SampleRate.MS128;
+                    SampleRate frequency =  SampleRate.MS32;
 
 					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, frequency);
 					client.getSensorManager().registerHeartRateEventListener(mHeartRateEventListener);
@@ -185,7 +197,7 @@ public class BandStreamingAppActivity extends Activity {
         @Override
         public void onBandAccelerometerChanged(final BandAccelerometerEvent event) {
             if (event != null) {
-                sendMessage(JsonUtil.toJson("acceleration", event));
+                sendMessage(JsonUtil.toJson("acceleration", event, getLabel()));
 //                appendToUI(String.format(" X = %.3f \n Y = %.3f\n Z = %.3f", event.getAccelerationX(),
 //                        event.getAccelerationY(), event.getAccelerationZ()));
             }
@@ -197,7 +209,7 @@ public class BandStreamingAppActivity extends Activity {
 		@Override
 		public void onBandHeartRateChanged(BandHeartRateEvent event) {
 			if (event != null) {
-                sendMessage(JsonUtil.toJson("heartrate", event));
+                sendMessage(JsonUtil.toJson("heartrate", event, getLabel()));
                 appendToUI(String.format(" Heart rate = %d", event.getHeartRate()));
 			}
 
@@ -209,7 +221,7 @@ public class BandStreamingAppActivity extends Activity {
         @Override
         public void onBandSkinTemperatureChanged(BandSkinTemperatureEvent event) {
             if (event != null) {
-                sendMessage(JsonUtil.toJson("skip-temperature", event));
+                sendMessage(JsonUtil.toJson("skip-temperature", event, getLabel()));
             }
         }
     };
@@ -219,7 +231,7 @@ public class BandStreamingAppActivity extends Activity {
         @Override
         public void onBandPedometerChanged(BandPedometerEvent event) {
             if (event != null) {
-                sendMessage(JsonUtil.toJson("pedometer", event));
+                sendMessage(JsonUtil.toJson("pedometer", event, getLabel()));
             }
         }
     };
@@ -229,7 +241,7 @@ public class BandStreamingAppActivity extends Activity {
         @Override
         public void onBandGyroscopeChanged(BandGyroscopeEvent event) {
             if (event != null) {
-                sendMessage(JsonUtil.toJson("gyroscope", event));
+                sendMessage(JsonUtil.toJson("gyroscope", event, getLabel()));
             }
         }
     };
@@ -286,7 +298,7 @@ public class BandStreamingAppActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("message is coming", message);
+//                        Log.d("message is coming", message);
                     }
                 });
             }

@@ -16,7 +16,7 @@ public class JsonUtil {
     static String getCurrentTimestamp() {
         return Long.toString(System.currentTimeMillis()/1000);
     }
-    static String toJson(String name, BandHeartRateEvent event) {
+    static String toJson(String name, BandHeartRateEvent event, String label) {
 
         JSONObject jsonObj = new JSONObject();
         JSONObject jsonHeartRateObj = new JSONObject();
@@ -26,6 +26,8 @@ public class JsonUtil {
 
             jsonObj.put(name, jsonHeartRateObj);
             jsonObj.put("timestamp", getCurrentTimestamp());
+            jsonObj.put("label", label);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -33,7 +35,7 @@ public class JsonUtil {
 
         return jsonObj.toString();
     }
-    static String toJson(String name, BandSkinTemperatureEvent event) {
+    static String toJson(String name, BandSkinTemperatureEvent event, String label) {
 
         JSONObject jsonObj = new JSONObject();
         JSONObject jsonHeartRateObj = new JSONObject();
@@ -42,6 +44,8 @@ public class JsonUtil {
 
             jsonObj.put(name, jsonHeartRateObj);
             jsonObj.put("timestamp", getCurrentTimestamp());
+            jsonObj.put("label", label);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -49,7 +53,7 @@ public class JsonUtil {
 
         return jsonObj.toString();
     }
-    static String toJson(String name, BandPedometerEvent event) {
+    static String toJson(String name, BandPedometerEvent event, String label) {
 
         JSONObject jsonObj = new JSONObject();
         JSONObject jsonHeartRateObj = new JSONObject();
@@ -58,6 +62,8 @@ public class JsonUtil {
 
             jsonObj.put(name, jsonHeartRateObj);
             jsonObj.put("timestamp", getCurrentTimestamp());
+            jsonObj.put("label", label);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -65,7 +71,7 @@ public class JsonUtil {
 
         return jsonObj.toString();
     }
-    static String toJson(String name, BandAccelerometerEvent event) {
+    static String toJson(String name, BandAccelerometerEvent event, String label) {
 
         JSONObject jsonObj = new JSONObject();
         JSONObject jsonHeartRateObj = new JSONObject();
@@ -76,6 +82,8 @@ public class JsonUtil {
 
             jsonObj.put(name, jsonHeartRateObj);
             jsonObj.put("timestamp", getCurrentTimestamp());
+            jsonObj.put("label", label);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -84,7 +92,7 @@ public class JsonUtil {
         return jsonObj.toString();
     }
 
-    static String toJson(String name, BandGyroscopeEvent event) {
+    static String toJson(String name, BandGyroscopeEvent event, String label) {
 
         JSONObject jsonObj = new JSONObject();
         JSONObject jsonHeartRateObj = new JSONObject();
@@ -99,6 +107,7 @@ public class JsonUtil {
 
             jsonObj.put(name, jsonHeartRateObj);
             jsonObj.put("timestamp", getCurrentTimestamp());
+            jsonObj.put("label", label);
 
         } catch (JSONException e) {
             e.printStackTrace();
