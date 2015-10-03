@@ -27,11 +27,16 @@ import com.microsoft.band.UserConsent;
 import com.microsoft.band.sdk.sampleapp.streaming.R;
 import com.microsoft.band.sensors.BandAccelerometerEvent;
 import com.microsoft.band.sensors.BandAccelerometerEventListener;
+import com.microsoft.band.sensors.BandGyroscopeEvent;
+import com.microsoft.band.sensors.BandGyroscopeEventListener;
 import com.microsoft.band.sensors.BandHeartRateEvent;
 import com.microsoft.band.sensors.BandHeartRateEventListener;
+import com.microsoft.band.sensors.BandSkinTemperatureEvent;
+import com.microsoft.band.sensors.BandSkinTemperatureEventListener;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 import com.microsoft.band.sensors.SampleRate;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -41,11 +46,20 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class BandStreamingAppActivity extends Activity {
 
 	private BandClient client = null;
 	private Button btnStart;
 	private TextView txtStatus;
+    WebSocketClient mWebSocketClient;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +75,8 @@ public class BandStreamingAppActivity extends Activity {
 				new appTask().execute();
 			}
 		});
+
+        connectWebSocket();
     }
 	
 	@Override
@@ -87,8 +103,10 @@ public class BandStreamingAppActivity extends Activity {
 			try {
 				if (getConnectedBandClient()) {
 					appendToUI("Band is connected.\n");
-//					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, SampleRate.MS128);
+					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, SampleRate.MS128);
 					client.getSensorManager().registerHeartRateEventListener(mHeartRateEventListener);
+                    client.getSensorManager().registerSkinTemperatureEventListener(mSkinTemperatureEventListener);
+                    client.getSensorManager().registerGyroscopeEventListener(mGyroscopeEventListener, SampleRate.MS128);
 				} else {
 					appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
 				}
@@ -127,8 +145,9 @@ public class BandStreamingAppActivity extends Activity {
         @Override
         public void onBandAccelerometerChanged(final BandAccelerometerEvent event) {
             if (event != null) {
-            	appendToUI(String.format(" X = %.3f \n Y = %.3f\n Z = %.3f", event.getAccelerationX(),
-            			event.getAccelerationY(), event.getAccelerationZ()));
+                sendMessage(JsonUtil.toJson("acceleration", event));
+//                appendToUI(String.format(" X = %.3f \n Y = %.3f\n Z = %.3f", event.getAccelerationX(),
+//                        event.getAccelerationY(), event.getAccelerationZ()));
             }
         }
     };
@@ -138,11 +157,32 @@ public class BandStreamingAppActivity extends Activity {
 		@Override
 		public void onBandHeartRateChanged(BandHeartRateEvent event) {
 			if (event != null) {
-				appendToUI(String.format(" Heart rate = %d", event.getHeartRate()));
+                sendMessage(JsonUtil.toJson("heartrate", event));
+                appendToUI(String.format(" Heart rate = %d", event.getHeartRate()));
 			}
 
 		}
 	};
+
+    private BandSkinTemperatureEventListener mSkinTemperatureEventListener = new BandSkinTemperatureEventListener() {
+
+        @Override
+        public void onBandSkinTemperatureChanged(BandSkinTemperatureEvent event) {
+            if (event != null) {
+                sendMessage(JsonUtil.toJson("skip-temperature", event));
+            }
+        }
+    };
+
+    private BandGyroscopeEventListener mGyroscopeEventListener = new BandGyroscopeEventListener() {
+
+        @Override
+        public void onBandGyroscopeChanged(BandGyroscopeEvent event) {
+            if (event != null) {
+                sendMessage(JsonUtil.toJson("gyroscope", event));
+            }
+        }
+    };
     
 	private boolean getConnectedBandClient() throws InterruptedException, BandException {
 		if (client == null) {
@@ -173,5 +213,49 @@ public class BandStreamingAppActivity extends Activity {
             Log.d("connecting", "everything is good we have it now");
         }
     };
+
+    private void connectWebSocket() {
+        URI uri;
+        try {
+            uri = new URI("ws://teststream.mybluemix.net/ws/receive");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        this.mWebSocketClient = new WebSocketClient(uri) {
+            @Override
+            public void onOpen(ServerHandshake serverHandshake) {
+                Log.i("Websocket", "Opened");
+                mWebSocketClient.send("Hello from " + Build.MANUFACTURER + " " + Build.MODEL);
+            }
+
+            @Override
+            public void onMessage(String s) {
+                final String message = s;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("message is coming", message);
+                    }
+                });
+            }
+
+            @Override
+            public void onClose(int i, String s, boolean b) {
+                Log.i("Websocket", "Closed " + s);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.i("Websocket", "Error " + e.getMessage());
+            }
+        };
+        mWebSocketClient.connect();
+    }
+
+    public void sendMessage(String message) {
+        mWebSocketClient.send(message);
+    }
 }
 

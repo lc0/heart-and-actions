@@ -19,5 +19,6 @@ android {
 }
 
 dependencies {
+    compile 'org.java-websocket:Java-WebSocket:1.3.0'
     compile files('libs/microsoft-band-1.3.10622.3.jar')
 }
