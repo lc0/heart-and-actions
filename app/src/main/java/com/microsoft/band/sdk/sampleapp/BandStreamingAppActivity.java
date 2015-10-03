@@ -27,8 +27,12 @@ import com.microsoft.band.UserConsent;
 import com.microsoft.band.sdk.sampleapp.streaming.R;
 import com.microsoft.band.sensors.BandAccelerometerEvent;
 import com.microsoft.band.sensors.BandAccelerometerEventListener;
+import com.microsoft.band.sensors.BandGyroscopeEvent;
+import com.microsoft.band.sensors.BandGyroscopeEventListener;
 import com.microsoft.band.sensors.BandHeartRateEvent;
 import com.microsoft.band.sensors.BandHeartRateEventListener;
+import com.microsoft.band.sensors.BandSkinTemperatureEvent;
+import com.microsoft.band.sensors.BandSkinTemperatureEventListener;
 import com.microsoft.band.sensors.HeartRateConsentListener;
 import com.microsoft.band.sensors.SampleRate;
 
@@ -101,6 +105,8 @@ public class BandStreamingAppActivity extends Activity {
 					appendToUI("Band is connected.\n");
 					client.getSensorManager().registerAccelerometerEventListener(mAccelerometerEventListener, SampleRate.MS128);
 					client.getSensorManager().registerHeartRateEventListener(mHeartRateEventListener);
+                    client.getSensorManager().registerSkinTemperatureEventListener(mSkinTemperatureEventListener);
+                    client.getSensorManager().registerGyroscopeEventListener(mGyroscopeEventListener, SampleRate.MS128);
 				} else {
 					appendToUI("Band isn't connected. Please make sure bluetooth is on and the band is in range.\n");
 				}
@@ -140,8 +146,8 @@ public class BandStreamingAppActivity extends Activity {
         public void onBandAccelerometerChanged(final BandAccelerometerEvent event) {
             if (event != null) {
                 sendMessage(JsonUtil.toJson("acceleration", event));
-                appendToUI(String.format(" X = %.3f \n Y = %.3f\n Z = %.3f", event.getAccelerationX(),
-                        event.getAccelerationY(), event.getAccelerationZ()));
+//                appendToUI(String.format(" X = %.3f \n Y = %.3f\n Z = %.3f", event.getAccelerationX(),
+//                        event.getAccelerationY(), event.getAccelerationZ()));
             }
         }
     };
@@ -157,6 +163,26 @@ public class BandStreamingAppActivity extends Activity {
 
 		}
 	};
+
+    private BandSkinTemperatureEventListener mSkinTemperatureEventListener = new BandSkinTemperatureEventListener() {
+
+        @Override
+        public void onBandSkinTemperatureChanged(BandSkinTemperatureEvent event) {
+            if (event != null) {
+                sendMessage(JsonUtil.toJson("skip-temperature", event));
+            }
+        }
+    };
+
+    private BandGyroscopeEventListener mGyroscopeEventListener = new BandGyroscopeEventListener() {
+
+        @Override
+        public void onBandGyroscopeChanged(BandGyroscopeEvent event) {
+            if (event != null) {
+                sendMessage(JsonUtil.toJson("gyroscope", event));
+            }
+        }
+    };
     
 	private boolean getConnectedBandClient() throws InterruptedException, BandException {
 		if (client == null) {
