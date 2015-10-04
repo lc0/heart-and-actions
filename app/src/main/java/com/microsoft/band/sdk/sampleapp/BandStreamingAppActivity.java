@@ -40,6 +40,9 @@ import com.microsoft.band.sensors.SampleRate;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.app.Activity;
@@ -48,6 +51,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -118,6 +122,16 @@ public class BandStreamingAppActivity extends Activity {
 
         connectWebSocket();
     }
+
+    private final Handler mMessageHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            Activity activity = BandStreamingAppActivity.this;
+            if (activity != null) {
+                Toast.makeText(activity, (String) msg.obj, Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 	
 	@Override
 	protected void onResume() {
@@ -298,7 +312,7 @@ public class BandStreamingAppActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        Log.d("message is coming", message);
+                        Log.d("message is coming", message);
                     }
                 });
             }
@@ -318,6 +332,21 @@ public class BandStreamingAppActivity extends Activity {
 
     public void sendMessage(String message) {
         mWebSocketClient.send(message);
+    }
+
+
+
+    /**
+     * Shows a {@link Toast} on the UI thread.
+     *
+     * @param text The message to show.
+     */
+    private void showToast(String text) {
+        // We show a Toast by sending request message to mMessageHandler. This makes sure that the
+        // Toast is shown on the UI thread.
+        Message message = Message.obtain();
+        message.obj = text;
+        mMessageHandler.sendMessage(message);
     }
 }
 
