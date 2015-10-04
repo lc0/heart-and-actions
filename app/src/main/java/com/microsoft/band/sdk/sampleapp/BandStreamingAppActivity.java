@@ -79,6 +79,7 @@ public class BandStreamingAppActivity extends Activity {
     private EditText edtLabel;
 
     WebSocketClient mWebSocketClient;
+    String action = "Start";
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,27 +99,34 @@ public class BandStreamingAppActivity extends Activity {
 
         edtLabel = (EditText) findViewById(R.id.edtLabel);
         btSendLabel = (Button) findViewById(R.id.btnSendLabel);
+
+
         btSendLabel.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
-                String action = "start";
-                setLabel(edtLabel.getText().toString());
-                if (started) {
-                    setLabel("");
-                    action = "stop";
-                }
-                started = !started;
-
-                Log.d("Sending feedback: ", edtLabel.getText().toString() + " -- " + action);
 
                 HashMap<String, String> data = new HashMap<String, String>();
                 data.put("action", action);
                 data.put("label", edtLabel.getText().toString());
                 data.put("timestamp", edtLabel.getText().toString());
+
+                Log.d("Sending feedback: ", edtLabel.getText().toString() + " -- " + action);
+
                 AsyncLabelPost asyncHttpPost = new AsyncLabelPost(data);
                 asyncHttpPost.execute("http://teststream.mybluemix.net/label");
+
+                setLabel(edtLabel.getText().toString());
+
+                started = !started;
+                if (started) {
+                    action = "Stop";
+                }
+                else {
+                    action = "Start";
+                    setLabel("");
+                }
+
+                btSendLabel.setText(action + " labeling");
 
             }
         });
@@ -230,6 +238,7 @@ public class BandStreamingAppActivity extends Activity {
 		@Override
 		public void onBandHeartRateChanged(BandHeartRateEvent event) {
 			if (event != null) {
+                Log.d("LAST", JsonUtil.toJson("heartrate", event, getLabel()));
                 sendMessage(JsonUtil.toJson("heartrate", event, getLabel()));
                 appendToUI(String.format(" Heart rate = %d", event.getHeartRate()));
 			}
@@ -262,7 +271,7 @@ public class BandStreamingAppActivity extends Activity {
         @Override
         public void onBandGyroscopeChanged(BandGyroscopeEvent event) {
             if (event != null) {
-                Log.d("Some real event", Float.toString(event.getAngularVelocityX()));
+//                Log.d("Some real event", Float.toString(event.getAngularVelocityX()));
 
                 sendMessage(JsonUtil.toJson("gyroscope", event, getLabel()));
             }
@@ -321,7 +330,7 @@ public class BandStreamingAppActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        Log.d("message is coming", message);
+                        Log.d("message is coming", message);
                     }
                 });
             }
