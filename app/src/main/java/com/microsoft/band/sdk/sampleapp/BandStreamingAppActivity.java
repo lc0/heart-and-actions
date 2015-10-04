@@ -48,8 +48,11 @@ import android.view.View;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -121,6 +124,10 @@ public class BandStreamingAppActivity extends Activity {
         });
 
         connectWebSocket();
+
+        ImageView imageView = (ImageView) findViewById(R.id.imageView);
+        Animation pulse = AnimationUtils.loadAnimation(this, R.anim.heart_pulse);
+        imageView.startAnimation(pulse);
     }
 
     private final Handler mMessageHandler = new Handler(Looper.getMainLooper()) {
@@ -255,6 +262,8 @@ public class BandStreamingAppActivity extends Activity {
         @Override
         public void onBandGyroscopeChanged(BandGyroscopeEvent event) {
             if (event != null) {
+                Log.d("Some real event", Float.toString(event.getAngularVelocityX()));
+
                 sendMessage(JsonUtil.toJson("gyroscope", event, getLabel()));
             }
         }
@@ -312,7 +321,7 @@ public class BandStreamingAppActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("message is coming", message);
+//                        Log.d("message is coming", message);
                     }
                 });
             }

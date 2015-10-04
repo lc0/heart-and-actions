@@ -25,6 +25,12 @@
         android:text=""
         android:layout_weight="0.44" />
 
+    <ImageView
+        android:id ="@+id/imageView"
+        android:layout_width="match_parent"
+        android:src="@drawable/hearts"
+        android:layout_height="100pt" />
+
     <EditText
         android:id="@+id/edtLabel"
         android:layout_width="match_parent"
